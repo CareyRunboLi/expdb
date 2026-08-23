@@ -334,7 +334,22 @@ def add_beta_bound_bourgain_2017():
 add_beta_bound_bourgain_2017()
 
 
+def add_beta_bound_heath_brown_2020():
+    # Theorem 4.25 (Heath-Brown 2020) for 1/2 <= alpha <= 3/4
+    # f1(alpha) = alpha * (12*alpha + 5) / (16*alpha + 4)
+    # f2(alpha) = 8/9 * alpha
+    # Breakpoint at alpha = 13/20. f1 is convex on [1/2, 13/20].
+    # Chord from (1/2, 11/24) to (13/20, 26/45):
+    # slope = 43/54, intercept = 13/216
 
+    bbeta.add_beta_bound(
+        literature,
+        [
+            Affine(frac(43, 54), frac(13, 216), Interval("[1/2, 13/20]")),
+            Affine(frac(8, 9),   frac(0),       Interval("[13/20, 3/4]")),
+        ],
+        rm.get("demeter_small_2020"),
+    )
 def add_beta_bound_trudgian_yang_2024():
     # Other bounds on beta are stated in the LaTeX blueprint, however they have
     # already been added to the beta bounds literature
@@ -602,9 +617,6 @@ def add_literature_bounds_mu():
     literature.add_hypotheses(
         [
             # Bounds on the critical line
-            literature_bound_mu(
-                frac(1, 2), frac(1, 6), rm.get("hardy_littlewood_1923")
-            ),
             literature_bound_mu(frac(1, 2), frac(193, 988), rm.get("walfisz_1924")),
             literature_bound_mu(
                 frac(1, 2), frac(27, 164), rm.get("titchmarsh_van_1931")
@@ -628,23 +640,7 @@ def add_literature_bounds_mu():
             literature_bound_mu(
                 frac(1, 2), frac(139, 858), Reference.make("Kolesnik", 1985)
             ),
-            literature_bound_mu(frac(1, 2), frac(9, 56), rm.get("bombieri_order_1986")),
-            literature_bound_mu(
-                frac(1, 2), frac(89, 560), rm.get("watt_exponential_1989")
-            ),
-            literature_bound_mu(
-                frac(1, 2), frac(17, 108), rm.get("huxley_exponential_1991")
-            ),
-            literature_bound_mu(
-                frac(1, 2), frac(89, 570), rm.get("huxley_exponential_1993")
-            ),
-            literature_bound_mu(
-                frac(1, 2), frac(32, 205), rm.get("huxley_exponential_2005")
-            ),
-            literature_bound_mu(
-                frac(1, 2), frac(13, 84), rm.get("bourgain_decoupling_2017")
-            ),
-            
+
             # Bounds off the critical line
             literature_bound_mu(
                 frac(1934, 3655), frac(6299, 43860), rm.get("huxley_area_1996")
@@ -711,8 +707,8 @@ literature.add_hypotheses(
     literature_bound_mu(
         1 - frac(1, pow(2, n - 1)),
         frac(1, (n + 1) * pow(2, n - 1)),
-        Reference.make("Hardy--Littlewood", "Unknown date"),
-    )  # TODO: find the exact year
+        Reference.make("Hardy--Littlewood",1922),
+    )
     for n in range(4, Constants.EXP_PAIR_TRUNCATION)
 )
 
@@ -770,7 +766,7 @@ def add_jutila_large_values_estimate(K):
 # Given in Table 7.1 of the LaTeX blueprint
 def add_bourgain_large_values_estimate():
     polys = [
-        # For now - assume that we can't say anthing about LV estimates
+        # For now - assume that we can't say anything about LV estimates
         # for tau <= 1
         Polytope.rect(
             (frac(1,2), frac(1)),                       # 1/2 <= σ <= 1
@@ -823,7 +819,7 @@ def add_bourgain_large_values_estimate():
             [0, 0, 0, 1],               # ρ >= 0
             [1, -1, 0, 0],              # σ <= 1
             [-frac(1,2), 1, 0, 0],      # σ >= 1/2
-            [-10, 14, -1, 0],           
+            [-10, 14, -1, 0],
             [-1, 0, 1, 0],              # τ >= 1
             [Constants.TAU_UPPER_LIMIT, 0, -1, 0], # τ <= large
             [-2, 6, -2, 0]
@@ -843,7 +839,7 @@ def add_bourgain_large_values_estimate():
         Region_Type.DISJOINT_UNION,
         [Region.from_polytope(p) for p in polys]
     )
-    
+
     ref = rm.get("bourgain_large_2000")
     literature.add_hypothesis(
         Hypothesis(
@@ -967,7 +963,7 @@ def add_lver_heath_brown_1979b1():
 
             # ρ* <= 1 - 2σ + (ρ/2 + 1/2) + (3ρ*/8 + ρ/2 + τ/4) = 3/2 - 2σ + τ/4 + ρ + 3ρ*/8
             [frac(3,2), -2, frac(1,4), 1, -frac(5,8), 0],       # 3/2 - 2σ + τ/4 + ρ - 5ρ*/8 >= 0
-            
+
             # ρ* <= 1 - 2σ + (ρ) + (3ρ*/8 + ρ/2 + τ/4) = 1 - 2σ + τ/4 + 3ρ/2 + 3ρ*/8
             [1, -2, frac(1,4), frac(3,2), -frac(5,8), 0],       # 1 - 2σ + τ/4 + 3ρ/2 - 5ρ*/8 >= 0
 
@@ -1043,14 +1039,14 @@ def add_lver_guth_maynard_2024a(K):
 
             # Bounds arising from rho <= 1 - 2sigma + S_1/3
             # S_1 <= -10
-            [-frac(7,3), -2, 0, -1, 0, 0],   
+            [-frac(7,3), -2, 0, -1, 0, 0],
 
             # Bounds arising from rho <= 1 - 2sigma + S_2/3
-            # S_2 <= 2 + 2rho, 
+            # S_2 <= 2 + 2rho,
             # i.e. 5 - 6sigma - rho >= 0
             [5, -6, 0, -1, 0, 0],
 
-            # S_2 <= tau + 1 + (2 - 1/k)rho 
+            # S_2 <= tau + 1 + (2 - 1/k)rho
             # i.e. 4 - 6sigma + tau - (1 + 1/k)rho >= 0
             [4, -6, 1, -frac(k + 1, k), 0, 0],
 
@@ -1066,7 +1062,7 @@ def add_lver_guth_maynard_2024a(K):
             ],
             rect
         )
-        # Second region arising from 
+        # Second region arising from
         # S_3 <= max(2tau + 3rho/2, tau + 1 + rho/2 + rho*/2)
         reg2 = Region.from_union_of_halfplanes(
             common + [
@@ -1086,7 +1082,7 @@ add_lver_guth_maynard_2024a(4)
 
 # Lemma 10.18 from Guth--Maynard
 def add_lver_guth_maynard_2024b():
-    
+
     # First region: tau <= 3/2
     rect1 = ad.Large_Value_Energy_Region.default_constraints()
     rect1.append([frac(3,2), 0, -1, 0, 0, 0])
@@ -1097,7 +1093,7 @@ def add_lver_guth_maynard_2024b():
         ],
         rect1
     )
-    
+
     # Second region: tau >= 3/2: no new bounds in this region
     rect2 = ad.Large_Value_Energy_Region.default_constraints()
     rect2.append([-frac(3,2), 0, 1, 0, 0, 0])
@@ -1115,11 +1111,11 @@ add_lver_guth_maynard_2024b()
 def add_lver_guth_maynard_2024c():
     rect1 = ad.Large_Value_Energy_Region.default_constraints()
     rect1.append([frac(4,3), 0, -1, 0, 0, 0]) # 1 <= tau <= 4/3
-    rect1.append([-1, 0, 1, 0, 0, 0]) 
+    rect1.append([-1, 0, 1, 0, 0, 0])
     region = Region.from_union_of_halfplanes(
         [
             [4, -4, 0, 1, -1, 0],                   # 4 - 4sigma + rho - rho* >= 0
-            [1, -2, frac(1,4), frac(21,8), -1, 0],  # 1 - 2sigma + tau/4 + 21/8 rho - rho* >= 0 
+            [1, -2, frac(1,4), frac(21,8), -1, 0],  # 1 - 2sigma + tau/4 + 21/8 rho - rho* >= 0
             [1, -2, 0, 3, -1, 0]                    # 1 - 2sigma + 3rho - rho* >= 0
         ],
         rect1
@@ -1131,7 +1127,7 @@ def add_lver_guth_maynard_2024c():
     rect3 = ad.Large_Value_Energy_Region.default_constraints()
     rect3.append([1, 0, -1, 0, 0, 0]) # tau <= 1
     region.child.append(Region(Region_Type.POLYTOPE, Polytope(rect3)))
-    
+
     literature.add_hypothesis(
         ad.literature_large_value_energy_region(
             region,
@@ -1292,11 +1288,11 @@ zd.add_zero_density(
 )
 
 # A. Ivic (1984) The Riemann zeta-function (11.76, 11.77)
-# For k = 2, the estimate is already contained in 
+# For k = 2, the estimate is already contained in
 # (A. Ivic (1980) Exponent pairs and the zeta function of Riemann, Studia Sci. Math. Hung. Volume: 15, pages 157--181)
-# For k > 2, the result depends on our choice of exponent pair. Based on 
-# our current knowledge, in the case of k = 3 the lower limit on sigma is 41/53, 
-# and for all higher k the lower limit is given by 
+# For k > 2, the result depends on our choice of exponent pair. Based on
+# our current knowledge, in the case of k = 3 the lower limit on sigma is 41/53,
+# and for all higher k the lower limit is given by
 # (9 * k**2 - 4 * k + 2)/(12 * k**2 - 6 * k + 2)
 def add_zero_density_ivic_1984():
     for k in range(3, 100):

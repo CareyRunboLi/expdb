@@ -129,7 +129,7 @@ def beta_to_zlv(hypotheses):
         # the trivial bound LVZ(s, t) \leq t
         polys = [
             Polytope([
-                [0, 0, 0, -1],          # \rho <= 0 
+                [0, 0, 0, -1],          # \rho <= 0
                 [0, 0, 0, 1],           # \rho >= 0
                 [1, -1, 0, 0],          # \sigma <= 1
                 [-frac(1, 2), 1, 0, 0], # \sigma >= 1/2
@@ -170,7 +170,7 @@ def beta_to_zlv(hypotheses):
             ])
         ]
         region = Region(
-            Region_Type.DISJOINT_UNION, 
+            Region_Type.DISJOINT_UNION,
             [Region.from_polytope(p) for p in polys]
         )
         zlv_estimates.append(derived_bound_zeta_LV(region, f"Follows from {be.name}", {be}))
@@ -220,7 +220,7 @@ def mu_to_zlv(hypotheses):
             ])
         ]
         region = Region(
-            Region_Type.DISJOINT_UNION, 
+            Region_Type.DISJOINT_UNION,
             [Region.from_polytope(p) for p in polys]
         )
         zlv_estimates.append(derived_bound_zeta_LV(region, f"Follows from {mb.name}", {mb}))

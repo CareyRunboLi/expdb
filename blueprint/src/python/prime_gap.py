@@ -64,7 +64,7 @@ def compute_gap2(hypotheses, debug=False):
         if debug:
             print("beta --------------------------------------------------")
             for p in statpts:
-                print(p, float(p), alpha.subs(x, p), float(alpha.subs(x, p)))
+                print(p, float(p), beta.subs(x, p), float(beta.subs(x, p)))
 
         print(interval, max(sup_alpha, sup_beta), alpha.simplify(), beta.simplify())
 

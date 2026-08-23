@@ -476,7 +476,7 @@ def lver_to_zd(LVER, LVER_zeta, sigma_interval):
     Parameters
     ----------
     LVER : Hypothesis
-        A regoin that contains the large value energy region, i.e. a region that
+        A region that contains the large value energy region, i.e. a region that
         contains the set of feasible tuples (sigma, tau, rho, rho*, s).
     LVER_zeta : Hypothesis
         A region that contains the zeta large value energy region.
@@ -543,11 +543,12 @@ def ivic_ep_to_zd(exp_pairs, m=2):
 
     # Search only among the vertices of H
     dep = None
-    sigma0 = 1
+    sigma0 = frac(1)
     for eph in exp_pairs:
         (k, l) = eph.data.k, eph.data.l
-        v = (3 * m * m * (1 + 2 * k + 2 * l) - (4 * k + 2 * l) * m + 2 * k + 2 * l) / (
-            4 * m * m * (1 + 2 * k + 2 * l) - (6 * k + 4 * l) * m + 2 * k + 2 * l
+        v = frac(
+            3 * m * m * (1 + 2 * k + 2 * l) - (4 * k + 2 * l) * m + 2 * k + 2 * l,
+            4 * m * m * (1 + 2 * k + 2 * l) - (6 * k + 4 * l) * m + 2 * k + 2 * l,
         )
         if v < sigma0:
             sigma0 = v
@@ -556,7 +557,26 @@ def ivic_ep_to_zd(exp_pairs, m=2):
     sigma0 = max(sigma0, frac(9 * m * m - 4 * m + 2, 12 * m * m - 6 * m + 2))
     sigma0 = min(sigma0, frac(6 * m * m - 5 * m + 2, 8 * m * m - 7 * m + 2))
 
-    zde = Zero_Density_Estimate(f"{3*m}/({3*m-2}x + {2-m})", Interval(sigma0, 1))
+    # Build the denominator string "(3m-2)*x + (2-m)", omitting a zero constant
+    # term and always using an explicit '*' so the expression parses (e.g. m=2
+    # previously produced "4x + 0", which sympy cannot parse).
+    a = 3 * m - 2          # coefficient of x
+    b = 2 - m              # constant term
+    if b == 0:
+        denom = f"{a}*x"
+    elif b > 0:
+        denom = f"{a}*x + {b}"
+    else:
+        denom = f"{a}*x - {-b}"
+    zde = Zero_Density_Estimate(f"{3*m}/({denom})", Interval(sigma0, 1))
+
+    # If no exponent pair improved on the trivial sigma0=1 (dep stays None),
+    # there is no nontrivial dependency to attach; mark the estimate as derived
+    # without a specific parent rather than dereferencing None.
+    if dep is None:
+        return derived_zero_density_estimate(
+            zde, "Ivic exponent-pair zero-density estimate (no improving pair found)", set()
+        )
     return derived_zero_density_estimate(
         zde, f"Follows from {dep.data}", {dep}
     )
@@ -626,22 +646,122 @@ def approx_bourgain_ep_to_zd(exp_pairs):
 #   - k < 11/85
 #   - 11/85 < k < 1/5
 #   - s0 = (144k - 11l - 11)/(170k - 22)
-def bourgain_ep_to_zd():
+def bourgain_ep_to_zd(hypotheses=None, exp_pairs=None):
 
-    # Temporary:
-    # For now, manually enter the exponent pairs found from the above numerical optimisation
-    eps = [
-        (frac(11,85), frac(59,85)),
-        (frac(391, 4595), frac(3461, 4595)),
-        (frac(2779, 38033), frac(58699, 76066)),
-        (frac(89, 1282), frac(997, 1282)),
-        (frac(652397, 9713986), frac(7599781, 9713986)),
-        (frac(2371, 43205), frac(280013, 345640)),
-        (frac(9, 217), frac(1461, 1736)),
-        (frac(10769, 351096), frac(609317, 702192)),
-        (frac(89, 3478), frac(15327, 17390)),
-        (frac(1, 100), frac(14, 15))
+    # --- Determine which pairs to use ---
+    if exp_pairs is None:
+        if hypotheses is None:
+            raise ValueError("Must supply either hypotheses or exp_pairs.")
+
+        # Dynamically compute the current exponent pair hull
+        hypotheses.add_hypotheses(
+            ep.compute_exp_pairs(hypotheses, search_depth=5, prune=True)
+        )
+        hypotheses.add_hypotheses(ep.exponent_pairs_to_beta_bounds(hypotheses))
+        hypotheses.add_hypotheses(ep.compute_best_beta_bounds(hypotheses))
+        ep_hyps = ep.beta_bounds_to_exponent_pairs(hypotheses)
+
+        # Filter to Bourgain-valid pairs
+        pair_objs = [
+            h for h in ep_hyps
+            if h.data.k < frac(1, 5)
+            and h.data.l > frac(3, 5)
+            and 15 * h.data.l + 20 * h.data.k > 13
         ]
+    else:
+        # Legacy path: caller passes explicit (k, l) tuples
+        pair_objs = [
+            ep.derived_exp_pair(k, l, f"Supplied pair ({k},{l})", set())
+            for (k, l) in exp_pairs
+        ]
+
+    # --- Build bounds list ---
+    bounds = []
+    for h in pair_objs:
+        k, l = h.data.k, h.data.l
+        s0_base = max(frac(1, 2), (l + 1) / (2 * (k + 1)))
+
+        if k <= frac(11, 85):
+            s0 = s0_base
+        else:
+            s0 = max(
+                s0_base,
+                frac(144 * k - 11 * l - 11, 170 * k - 22)
+            )
+
+        if s0 >= 1:
+            continue
+
+        func = RF([4 * k], [2 * (1 + k), -1 - l])
+        bounds.append((func, Interval(s0, 1), h))
+
+    if not bounds:
+        return []
+
+    # --- Collect critical sigma values (intersections and boundaries) ---
+    crits = set()
+    crits.add(frac(1, 2))
+    for i in range(len(bounds)):
+        func_i, int_i, _ = bounds[i]
+        crits.add(int_i.x0)
+        crits.add(int_i.x1)
+
+        for j in range(i + 1, len(bounds)):
+            func_j, int_j, _ = bounds[j]
+            common = Interval(
+                max(int_i.x0, int_j.x0),
+                min(int_i.x1, int_j.x1)
+            )
+            if common.x0 < common.x1:
+                # Correctly invoke the project's native API for intersection over an interval
+                crits.update(func_i.intersections(func_j, common))
+
+    crits = sorted(crits)
+
+    # --- Build the optimal piecewise solution ---
+    soln = []
+    for idx in range(len(crits) - 1):
+        s1, s2 = crits[idx], crits[idx + 1]
+        if s2 <= s1 or s1 < frac(1, 2):
+            continue
+
+        interval = Interval(s1, s2)
+        test_sigma = (s1 + s2) / 2
+
+        best_value = None
+        best_func = None
+        best_h = None
+
+        for func, intv, h in bounds:
+            if intv.contains(test_sigma):
+                val = func.at(test_sigma)
+                if best_value is None or val < best_value:
+                    best_value = val
+                    best_func = func
+                    best_h = h
+
+        if best_func is not None:
+            soln.append((best_func, Interval(s1, s2), best_h))
+
+    # --- Clean up and merge adjacent intervals sharing the same optimal bound ---
+    merged = []
+    for func, interval, h in soln:
+        if (merged
+                and merged[-1][0] == func
+                and merged[-1][1].x1 == interval.x0):
+            prev_func, prev_int, prev_h = merged[-1]
+            merged[-1] = (func, Interval(prev_int.x0, interval.x1), h)
+        else:
+            merged.append((func, interval, h))
+
+    return [
+        derived_zero_density_estimate(
+            Zero_Density_Estimate.from_rational_func(func, interval),
+            f"Follows from [Bourgain, 1995] with exponent pair {h.data}",
+            {h}
+        )
+        for func, interval, h in merged
+    ]
 
     bounds = []
     for (k, l) in eps:
@@ -723,6 +843,21 @@ def bourgain_ep_to_zd():
 def ep_to_zd(hypotheses):
 
     # TODO: this routine is used quite often, should we roll it into a separate method?
+
+    # Seed the set with literature exponent-pair / beta-bound hypotheses if the
+    # caller has not already done so; otherwise beta_bounds_to_exponent_pairs
+    # below returns an empty hull (the original code silently produced no
+    # estimates when `hypotheses` contained only zero-density estimates).
+    try:
+        import literature as _lit
+        for _ht in ("Exponent pair", "Exponent pair bound", "Beta bound",
+                    "Upper bound on beta"):
+            existing = hypotheses.list_hypotheses(hypothesis_type=_ht)
+            if not existing:
+                hypotheses.add_hypotheses(_lit.literature.list_hypotheses(hypothesis_type=_ht))
+    except Exception:
+        pass
+
     hypotheses.add_hypotheses(
         ep.compute_exp_pairs(hypotheses, search_depth=5, prune=True)
     )
@@ -730,7 +865,22 @@ def ep_to_zd(hypotheses):
     hypotheses.add_hypotheses(ep.compute_best_beta_bounds(hypotheses))
     ephs = ep.beta_bounds_to_exponent_pairs(hypotheses)
 
-    return bourgain_ep_to_zd(ephs) + [ivic_ep_to_zd(ephs, m=2)]
+    # bourgain_ep_to_zd's dynamic path expects a Hypothesis_Set (it calls
+    # .add_hypotheses); passing the list `ephs` as the first positional arg
+    # raised AttributeError. Route the explicit pairs through the legacy
+    # `exp_pairs=` parameter instead, which takes (k, l) tuples.
+    pairs = []
+    seen = set()
+    for h in ephs:
+        try:
+            kl = (h.data.k, h.data.l)
+        except AttributeError:
+            continue
+        if kl not in seen:
+            seen.add(kl)
+            pairs.append(kl)
+
+    return bourgain_ep_to_zd(exp_pairs=pairs) + [ivic_ep_to_zd(ephs, m=2)]
 
 # Given a list of tuples (RationalFunction, interval),
 # returns a simplified list of tuples representing the same piecewise defined

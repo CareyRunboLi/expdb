@@ -1,4 +1,4 @@
-from ..functions import *
+from functions import *
 
 def get_unit_square():
     return Polytope(
@@ -155,7 +155,7 @@ def run_emptiness_tests():
     assert not p8.is_empty(include_boundary=True)
     assert p8.is_empty(include_boundary=False)
 
-    # Region reprsenting a 2-d line
+    # Region representing a 2-d line
     p9 = Polytope([
         [12, -12, -1],
         [frac(15,2), -frac(21,2), frac(1,2)],
@@ -306,6 +306,19 @@ def run_union_test():
     # Test unsuccessful union
     long_line = Polytope.rect((frac(1,2), frac(1,2)), (-1, 2))
     assert Polytope.try_union([square, long_line]) is None
+
+    # Unbounded inputs must be rejected: the union algorithm only inspects
+    # vertices, so extreme rays would otherwise yield a wrong envelope.
+    half_strip = Polytope([
+        [0, 1, 0],   # x >= 0
+        [0, 0, 1],   # y >= 0
+        [-1, 0, 1],  # y <= 1
+    ])
+    try:
+        Polytope.try_union([half_strip, square])
+        assert False, "expected ValueError for infinite polytope"
+    except ValueError as e:
+        assert "finite polytopes" in str(e)
 
 def run_union_3d_test():
     # Higher dimensional polytope test

@@ -141,7 +141,7 @@ def exponent_pair_to_mu_bound(exp_pair: Hypothesis) -> Hypothesis:
     ----------
     exp_pair: Hypothesis
         The assumed exponent pair (a Hypothesis object of type "Exponent pair")
-    
+
     Returns
     -------
     Hypothesis
@@ -268,7 +268,7 @@ def best_mu_bound(sigma, hypothesis_set):
 # TODO: supply not just a human-readable proof in the above method, but also a Lean-compilable proof.
 
 def best_mu_bound_piecewise(
-        sigma_interval: Interval, 
+        sigma_interval: Interval,
         hypothesis_set: Hypothesis_Set
     ) -> list[Affine]:
     """
@@ -303,7 +303,7 @@ def best_mu_bound_piecewise(
     for i in range(len(verts)):
         b1 = verts[i].data
         b2 = verts[(i + 1) % len(verts)].data
-        if b2.sigma < sigma0 or b1.sigma > sigma1: 
+        if b2.sigma < sigma0 or b1.sigma > sigma1:
             continue
         interval = Interval(max(sigma0, b1.sigma), min(sigma1, b2.sigma))
         if b1.sigma < b2.sigma and not interval.is_empty():

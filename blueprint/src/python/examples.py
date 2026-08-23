@@ -201,14 +201,14 @@ def beta_bound_examples():
 def beta_bound_examples2():
     # Compute best known beta bounds
     hypotheses_types = [
-        "Upper bound on beta", "Exponent pair", 
+        "Upper bound on beta", "Exponent pair",
         "Exponent pair transform", "Exponent pair to beta bound transform"
     ]
     hs = Hypothesis_Set()
     hs.add_hypothesis(trivial_exp_pair)
     for ht in hypotheses_types:
         hs.add_hypotheses(literature.list_hypotheses(hypothesis_type=ht))
-    
+
     hs.add_hypotheses(compute_exp_pairs(hs, search_depth=1, prune=True))
     hs.add_hypotheses(exponent_pairs_to_beta_bounds(hs))
     hs.add_hypotheses(compute_best_beta_bounds(hs))

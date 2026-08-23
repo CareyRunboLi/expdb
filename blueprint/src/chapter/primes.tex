@@ -83,6 +83,7 @@ Historical bounds on $\GAPMAX$ are summarized in the following table:
 
 \begin{table}[ht]
     \caption{Historical upper bounds on $\GAPMAX$.}
+    \label{gapmax-table}
     \centering
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{|c|c|}
@@ -120,12 +121,13 @@ Historical bounds on $\GAPMAX$ are summarized in the following table:
     R. Li (2025) \cite{li_number_2025} & $\frac{13}{25} = 0.52$\\
     \hline
     \end{tabular}
-    \end{table}\label{gapmax-table}
+    \end{table}
 
 Bounds on $\GAPAA$ are recorded in Table \ref{gapaa-table}.
 
 \begin{table}[ht]
     \caption{Historical upper bounds on $\GAPAA$.}
+    \label{gapaa-table}
     \centering
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{|c|c|}
@@ -152,7 +154,7 @@ Bounds on $\GAPAA$ are recorded in Table \ref{gapaa-table}.
     \hline
     H. Li (1997) \cite{li_short_1997} & $\frac{1}{15}=0.0666\dots$ \\
     \hline
-    Baker--Harman--Pintz (1997) \cite{baker-harman-pintz_goldbach_1997} & $\frac{1}{16} = 0.625$ \\
+    Baker--Harman--Pintz (1997) \cite{baker-harman-pintz_goldbach_1997} & $\frac{1}{16} = 0.0625$ \\
     \hline
     Wong (1996) \cite{wong_thesis_1996}, Jia (1996) \cite{jia_exceptional_1996}, Harman (2007) \cite{harman-book} & $\frac{1}{18} = 0.0555\dots$ \\
     \hline
@@ -163,12 +165,13 @@ Bounds on $\GAPAA$ are recorded in Table \ref{gapaa-table}.
     R. Li (2025) \cite{li_primes_almost_II_2025} & $\frac{1}{22} = 0.0455\dots$ \\
     \hline
     \end{tabular}
-    \end{table}\label{gapaa-table}
+    \end{table}
 
     Historical bounds on $\GAPSQUARE$ are recorded in Table \ref{gapsquare-table}.
 
     \begin{table}[ht]
         \caption{Historical upper bounds on $\GAPSQUARE$.}
+        \label{gapsquare-table}
         \centering
         \renewcommand{\arraystretch}{1.2}
         \begin{tabular}{|c|c|}
@@ -192,7 +195,7 @@ Bounds on $\GAPAA$ are recorded in Table \ref{gapaa-table}.
         Stadlmann (2022) \cite{stadlmann_mean_2022} & $\frac{123}{100} = 1.23$ \\
         \hline
     \end{tabular}
-    \end{table}\label{gapsquare-table}
+    \end{table}
 
 The following general bound on $\GAPSQUARE$ is known:
 
@@ -244,6 +247,7 @@ The proofs are routine and are omitted.  Historical bounds on $\GAPLARGE$ are re
 
 \begin{table}[ht]
     \caption{Historical upper bounds on $\GAPLARGE$ and $\GAPLARGEEQ$.}
+    \label{gaplarge-table}
     \centering
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{|c|c|c|}
@@ -275,7 +279,7 @@ The proofs are routine and are omitted.  Historical bounds on $\GAPLARGE$ are re
     J\"{a}rviniemi (2022) \cite{jarviniemi_large_2022} & & $\frac{57}{100} = 0.57$\\
     \hline
     \end{tabular}
-\end{table}\label{gaplarge-table}
+\end{table}
 
 For any $0 < \theta < 1$, let $\PNTEXCEP(\theta)$ denote the least exponent $\mu$ such that for all unbounded $X$, one has $\sum_{x \leq n < x + x^\theta} \Lambda(n) = (1+o(1)) x^\theta$ for all $x \in [X,2X]$ outside of an exceptional set of measure $O(X^{\mu+o(1)})$.  Thus for instance $\PNTEXCEP(\theta)=-\infty$ for $\theta > \PNTALL$ (and $\PNTEXCEP(\theta) \geq 0$ for $\theta < \PNTALL$), and $\PNTEXCEP(\theta) < 1$ implies $\theta \geq \PNTAA$. The quantity $\PNTEXCEP(\theta)$ is clearly non-decreasing in $\theta$.
 
@@ -382,6 +386,7 @@ Historical progress towards this problem is recorded in \Cref{small-primegap-tab
 
 \begin{table}[ht]
     \caption{Historical progression of bounds related to \eqref{eqn:small-prime-gaps}.}
+    \label{small-primegap-table}
     \centering
     \renewcommand{\arraystretch}{2.2}
     \begin{tabular}{|c|c|c|}
@@ -403,7 +408,7 @@ Historical progress towards this problem is recorded in \Cref{small-primegap-tab
     Polymath 8b (2015) \cite{polymath_variants_2014} & $H_1 \le 246$ & \\
     \hline
     \end{tabular}
-\end{table}\label{small-primegap-table}
+    \end{table}
 
 The current best known lower bound on $G(X)$ is
 \begin{theorem}[Ford--Green--Konyagin--Maynard--Tao (2017) \cite{ford_long_2017}]
@@ -414,6 +419,7 @@ G(X) \gg \frac{\log X \log \log X \log\log\log \log X}{\log \log \log X}
 \end{theorem}
 \begin{table}[ht]
     \caption{Historical progression of bounds related to \eqref{eqn:large-prime-gaps}.}
+    \label{small-primegap-table2}
     \centering
     \renewcommand{\arraystretch}{2.2}
     \begin{tabular}{|c|c|c|}
@@ -438,5 +444,5 @@ G(X) \gg \frac{\log X \log \log X \log\log\log \log X}{\log \log \log X}
     \hline
     Ford--Green--Konyagin--Maynard--Tao (2017) \cite{ford_long_2017} & $\displaystyle G(X) \gg \frac{\log X \log \log X \log\log\log \log X}{\log \log \log X}$ \\
     \hline
-\end{tabular}
-\end{table}\label{small-primegap-table2}
+    \end{tabular}
+    \end{table}

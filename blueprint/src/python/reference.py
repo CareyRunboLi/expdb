@@ -162,7 +162,7 @@ class Reference_Manager:
         ref = self._extract(item, "{", "}")
         entries = self._split_level(ref, "{", "}", ",", 0)
         label = entries[0].strip()
-        
+
         fields = {}
         for i in range(1, len(entries)):
             e = entries[i].strip()
